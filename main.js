@@ -6,11 +6,12 @@
 		this.game_over = false;
 		this.bars = [];
 		this.ball = null;
+		this.playing = false;
 	}
 
 	self.Board.prototype= {
 		get elements(){
-			var elements = this.bars;
+			var elements = this.bars.map(function(bar){ return bar; });
 			elements.push(this.ball);
 			return elements;
 		}
@@ -25,9 +26,17 @@
 		this.speed_y = 0;
 		this.speed_x = 3;
 		this.board = board;
+		this.direction = 1;
 
 		board.ball = this;
 		this.kind = "circle";
+	}
+
+	self.Ball.prototype = {
+		move: function(){
+			this.x += (this.speed_x * this.direction);
+			this.y += (this.speed_y);
+		}
 	}
 
 })();
@@ -41,7 +50,7 @@
 		this.board = board;
 		this.board.bars.push(this);
 		this.kind = "rectangle";
-		this.speed = 10;
+		this.speed = 5;
 	}
 
 	self.Bar.prototype = {
@@ -85,8 +94,13 @@
 	 },
 
 	 play: function(){
-	 	this.clean();
+
+	  if(this.board.playing){
+	  	this.clean();
 	    this.draw();
+	    this.board.ball.move();
+	  }
+	 	
 	
 	 }
 	}
@@ -116,28 +130,40 @@
 window.requestAnimationFrame(controller);
 
 document.addEventListener("keydown", function(ev){
-ev.preventDefault();
+
 //console.log(ev.keyCode);
 	if(ev.keyCode == 38){
+		ev.preventDefault();
 		bar.up();
 	}
 	else if(ev.keyCode == 40){
+		ev.preventDefault();
 		bar.down();
 	}
 	else if(ev.keyCode == 87){
 		//W
+		ev.preventDefault();
 		bar_2.up();
 	}
 	else if(ev.keyCode == 83){
 		//S
+		ev.preventDefault();
 		bar_2.down();
+	}
+	else if(ev.keyCode == 32){
+		ev.preventDefault();
+		board.playing = !board.playing;
 	}
 
 	//console.log(""+bar_2);
 });
 
+ board_view.draw();
 //window.addEventListener("load",controller);
 window.requestAnimationFrame(controller);
+setTimeout(function(){
+	ball.direction = -1;
+},4000);
 function controller(){
 	board_view.play();
 	window.requestAnimationFrame(controller);
